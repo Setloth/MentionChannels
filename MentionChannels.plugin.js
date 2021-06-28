@@ -15,13 +15,7 @@
             ],
             version: "1.0.0",
             description: "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
-        },
-        changelog: [
-            {"title": "Release", "items":[
-                "Button to mention a channel",
-                "If you can't speak in the channel you are looking at, the mention button will not appear"
-            ]}
-        ]
+        }
         
     };
 
