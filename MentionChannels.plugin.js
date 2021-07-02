@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author CT-1409
- * @version 1.0.1
+ * @version 1.0.2
  */
 
     const config = {
@@ -13,10 +13,14 @@
                     discord_id: "272875632088842240",
                 }
             ],
-            version: "1.0.1",
+            version: "1.0.2",
             description: "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
-        }
-        
+        },
+        changelog: [
+            {"title": "Fix", "items":[
+                "Fixed the button to not remove the 'Mark as Unread' button, but rather just sit at the top"
+            ]}
+        ]   
     };
 
     module.exports = !global.ZeresPluginLibrary ? class {
@@ -54,6 +58,8 @@
             }
 
             patch() {
+
+
                 const channels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListTextChannelContextMenu")
 
                 Patcher.after(channels, "default", (_, args, component) => {
@@ -77,7 +83,7 @@
                             }
                         })
     
-                        component.props.children.splice(0,1, item)
+                        component.props.children.unshift(item)
                     }
 
                 })
