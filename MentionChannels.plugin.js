@@ -75,7 +75,7 @@
                     if (ChannelPermissionUtils.can(Permissions.SEND_MESSAGES, UserStore.getCurrentUser().id, ChannelStore.getChannel(LastChannelStore.getChannelId()))) {
                         let item = DCM.buildMenuItem({
                             label: "Mention",
-                            type: "Text",
+                            type: "text",
                             action: () => {
                                 BdApi.findModuleByProps('ComponentDispatch').ComponentDispatch.dispatchToLastSubscribed("INSERT_TEXT", {
                                     content: "<#"+channel.id+">"
