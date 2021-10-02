@@ -12,4 +12,4 @@ This button will add a mention like #channel to your current message
 
 The button will not show if you cannot type in your current channel
 
-This also works on voice channels
+This also works on voice channels and threads
