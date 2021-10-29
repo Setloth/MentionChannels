@@ -77,13 +77,12 @@ module.exports = !global.ZeresPluginLibrary ? class {
         patch() {
 
             for(var item of toPatch) {
-                console.log(item)
+                
+                (item)
                 Patcher.after(item, "default", (_, [props], component) => {
                     let channel = props.channel
-                    console.log(props)
 
                     if (ChannelPermissionUtils.can(Permissions.SEND_MESSAGES, UserStore.getCurrentUser().id, ChannelStore.getChannel(LastChannelStore.getChannelId()))) {
-                        console.log("can")
                         let item = DCM.buildMenuItem({
                             label: "Mention",
                             type: "Text",
@@ -93,7 +92,6 @@ module.exports = !global.ZeresPluginLibrary ? class {
                                 })
                             }
                         })
-                        console.log(item)
                         component.props.children.unshift(item)
                     }
                 })
