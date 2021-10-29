@@ -1,85 +1,89 @@
 /**
  * @name MentionChannels
  * @author CT-1409
- * @version 2.0.1
+ * @version 3.0.0
  */
 
-    const config = {
-        info: {
-            name: "MentionChannels",
-            authors: [
-                {
-                    name: "CT-1409",
-                    discord_id: "272875632088842240",
-                }
-            ],
-            version: "2.0.1",
-            description: "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
-        },
-        changelog: [
+const config = {
+    info: {
+        name: "MentionChannels",
+        authors: [
             {
-                "title": "Threads", 
-                "items":[
-                    "Added support for threads! \n- Thanks XxUnkn0wnxX for bringing it to my attention."
-                ]
+                name: "Echology",
+                discord_id: "272875632088842240",
             }
-        ]   
-    };
+        ],
+        version: "3.0.0",
+        description: "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
+    },
+    changelog: [
+        {
+            "title": "Fix Thingy", 
+            "items":[
+                "Something broke, so I unbroke it"
+            ]
+        }
+    ]   
+};
 
-    module.exports = !global.ZeresPluginLibrary ? class {
+module.exports = !global.ZeresPluginLibrary ? class {
 
+    constructor() {
+        this._config = config;
+    }
+
+    load() {
+        BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+            confirmText: "Download Now",
+            cancelText: "Cancel",
+            onConfirm: () => {
+                require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, _response, body) => {
+                    if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+                    await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+                });
+            }
+        });
+    }
+
+    start() { }
+
+    stop() { }
+} : (([Plugin, Library]) => {
+
+    const reg = /(ChannelList)(.*)(ContextMenu)/gm
+
+    const { Patcher, WebpackModules, DCM } = Library;
+    const channels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListTextChannelContextMenu")
+    const threadchannels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListThreadContextMenu")
+    const voicechannels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListVoiceChannelContextMenu")
+
+    const toPatch = WebpackModules.getModules(m => reg.test(m?.default?.displayName))
+
+    const Permissions = BdApi.findModuleByProps("Permissions", "ActivityTypes").Permissions; 
+    const ChannelPermissionUtils = BdApi.findModuleByProps("can", "canEveryone");
+    const UserStore = BdApi.findModuleByProps("getCurrentUser");
+    const ChannelStore = BdApi.findModuleByProps("getDMFromUserId", "getChannel");
+    const LastChannelStore = BdApi.findModuleByProps("getLastSelectedChannelId", "getChannelId");
+
+    return class MentionChannels extends Plugin {
         constructor() {
-            this._config = config;
+            super();
         }
-    
-        load() {
-            BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-                confirmText: "Download Now",
-                cancelText: "Cancel",
-                onConfirm: () => {
-                    require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, _response, body) => {
-                        if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
-                        await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-                    });
-                }
-            });
+
+        async onStart() {
+            this.patch()
         }
-    
-        start() { }
-    
-        stop() { }
-    } : (([Plugin, Library]) => {
 
-        const { Patcher, WebpackModules, DCM, DiscordAPI, DiscordModules } = Library;
-        const channels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListTextChannelContextMenu")
-        const threadchannels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListThreadContextMenu")
-        const voicechannels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListVoiceChannelContextMenu")
+        patch() {
 
-        const Permissions = BdApi.findModuleByProps("Permissions", "ActivityTypes").Permissions; 
-        const ChannelPermissionUtils = BdApi.findModuleByProps("can", "canEveryone");
-        const UserStore = BdApi.findModuleByProps("getCurrentUser");
-        const ChannelStore = BdApi.findModuleByProps("getDMFromUserId", "getChannel");
-        const LastChannelStore = BdApi.findModuleByProps("getLastSelectedChannelId", "getChannelId");
-
-        return class MentionChannels extends Plugin {
-            constructor() {
-                super();
-            }
-
-            async onStart() {
-                this.patch()
-            }
-
-            patch() {
-
-
-
-                Patcher.after(channels, "default", (_, args, component) => {
-                    let props = args[0]
+            for(var item of toPatch) {
+                console.log(item)
+                Patcher.after(item, "default", (_, [props], component) => {
                     let channel = props.channel
-
+                    console.log(props)
 
                     if (ChannelPermissionUtils.can(Permissions.SEND_MESSAGES, UserStore.getCurrentUser().id, ChannelStore.getChannel(LastChannelStore.getChannelId()))) {
+                        console.log("can")
                         let item = DCM.buildMenuItem({
                             label: "Mention",
                             type: "Text",
@@ -89,61 +93,21 @@
                                 })
                             }
                         })
-    
+                        console.log(item)
                         component.props.children.unshift(item)
                     }
-
                 })
 
-
-                Patcher.after(voicechannels, "default", (_, args, component) => {
-                    let props = args[0]
-                    let channel = props.channel
-
-                    if (ChannelPermissionUtils.can(Permissions.SEND_MESSAGES, UserStore.getCurrentUser().id, ChannelStore.getChannel(LastChannelStore.getChannelId()))) {
-                        let item = DCM.buildMenuItem({
-                            label: "Mention",
-                            type: "Text",
-                            action: () => {
-                                BdApi.findModuleByProps('ComponentDispatch').ComponentDispatch.dispatchToLastSubscribed("INSERT_TEXT", {
-                                    content: "<#"+channel.id+">"
-                                })
-                            }
-                        })
-    
-                        component.props.children.unshift(item)
-                    }
-
-                })
-
-                Patcher.after(threadchannels, "default", (_, args, component) => {
-                    let props = args[0]
-                    let channel = props.channel
-
-                    if (ChannelPermissionUtils.can(Permissions.SEND_MESSAGES, UserStore.getCurrentUser().id, ChannelStore.getChannel(LastChannelStore.getChannelId()))) {
-                        let item = DCM.buildMenuItem({
-                            label: "Mention",
-                            type: "Text",
-                            action: () => {
-                                BdApi.findModuleByProps('ComponentDispatch').ComponentDispatch.dispatchToLastSubscribed("INSERT_TEXT", {
-                                    content: "<#"+channel.id+">"
-                                })
-                            }
-                        })
-    
-                        component.props.children.unshift(item)
-                    }
-
-                })
-
-            }
-
-            onLoad() {
-            }
-
-            onStop() {
-                Patcher.unpatchAll();
             }
 
         }
-    })(global.ZeresPluginLibrary.buildPlugin(config));
+
+        onLoad() {
+        }
+
+        onStop() {
+            Patcher.unpatchAll();
+        }
+
+    }
+})(global.ZeresPluginLibrary.buildPlugin(config));
