@@ -53,9 +53,6 @@ module.exports = !global.ZeresPluginLibrary ? class {
     const reg = /(ChannelList)(.*)(ContextMenu)/gm
 
     const { Patcher, WebpackModules, DCM } = Library;
-    const channels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListTextChannelContextMenu")
-    const threadchannels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListThreadContextMenu")
-    const voicechannels = WebpackModules.getModule(m => m?.default?.displayName === "ChannelListVoiceChannelContextMenu")
 
     const toPatch = WebpackModules.getModules(m => reg.test(m?.default?.displayName))
 
@@ -77,15 +74,13 @@ module.exports = !global.ZeresPluginLibrary ? class {
         patch() {
 
             for(var item of toPatch) {
-                
-                (item)
                 Patcher.after(item, "default", (_, [props], component) => {
                     let channel = props.channel
 
                     if (ChannelPermissionUtils.can(Permissions.SEND_MESSAGES, UserStore.getCurrentUser().id, ChannelStore.getChannel(LastChannelStore.getChannelId()))) {
                         let item = DCM.buildMenuItem({
                             label: "Mention",
-                            type: "Text",
+                            type: "text",
                             action: () => {
                                 BdApi.findModuleByProps('ComponentDispatch').ComponentDispatch.dispatchToLastSubscribed("INSERT_TEXT", {
                                     content: "<#"+channel.id+">"
