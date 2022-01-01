@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author Echology
- * @version 3.0.0
+ * @version 3.0.1
  */
 
 const config = {
@@ -13,7 +13,7 @@ const config = {
                 discord_id: "272875632088842240",
             }
         ],
-        version: "3.0.0",
+        version: "3.0.1",
         description: "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
     },
     changelog: [
