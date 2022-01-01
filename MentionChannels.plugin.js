@@ -1,6 +1,6 @@
 /**
  * @name MentionChannels
- * @author CT-1409
+ * @author Echology
  * @version 3.0.0
  */
 
