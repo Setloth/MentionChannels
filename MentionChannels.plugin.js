@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author Echology
- * @version 4.0.0
+ * @version 4.0.1
  */
 
 const config = {
@@ -13,14 +13,14 @@ const config = {
         discord_id: "272875632088842240",
       },
     ],
-    version: "4.0.0",
+    version: "4.0.1",
     description:
       "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
   },
   changelog: [
     {
-      title: "Zeres & Discord Update",
-      items: ["Fixed plugin to work with the new updates :)"],
+      title: "Minor Fix",
+      items: ["There was a change as to where something was located, broke the plugin for a second"],
     },
   ],
 };
@@ -98,8 +98,7 @@ module.exports = !global.ZeresPluginLibrary
 
         async patcher() {
           const patch = (_, [props], component) => {
-            const { children } = component.props;
-
+            const { children } = component.props.children.props;
             if (
               can(
                 SEND_MESSAGES,
