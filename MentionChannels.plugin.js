@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author Echology
- * @version 4.0.1
+ * @version 4.1.0
  */
 
 const config = {
@@ -13,14 +13,17 @@ const config = {
         discord_id: "272875632088842240",
       },
     ],
-    version: "4.0.1",
+    version: "4.1.0",
     description:
       "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
   },
   changelog: [
     {
-      title: "Minor Fix",
-      items: ["There was a change as to where something was located, broke the plugin for a second"],
+      title: "Another Minor Fix",
+      items: [
+        "More updates that messed up the plugin",
+        "Fixed the context menus being patched"
+      ],
     },
   ],
 };
@@ -68,7 +71,6 @@ module.exports = !global.ZeresPluginLibrary
       stop() {}
     }
   : (([Plugin, Library]) => {
-
       const { Patcher, ContextMenu: DCM } = Library;
       const { Permissions } = BdApi.findModuleByProps(
           "Permissions",
@@ -98,7 +100,6 @@ module.exports = !global.ZeresPluginLibrary
 
         async patcher() {
           const patch = (_, [props], component) => {
-            const { children } = component.props.children.props;
             if (
               can(
                 SEND_MESSAGES,
@@ -106,36 +107,27 @@ module.exports = !global.ZeresPluginLibrary
                 getChannel(getChannelId())
               )
             ) {
-              children.unshift(
+              return [
                 DCM.buildMenuItem({
                   type: "text",
                   label: "Mention",
                   action: () => {
                     ComponentDispatch.dispatchToLastSubscribed("INSERT_TEXT", {
-                      content: "<#" + props.channel.id + ">",
+                      content: "<#" + props.id + ">",
                     });
                   },
-                })
-              );
+                }),
+                component,
+              ];
             }
           };
 
-          DCM.getDiscordMenu(
-            (m) =>
-              m?.displayName == "ChannelListTextChannelContextMenu" &&
-              m.toString().includes("AnalyticsLocations.CONTEXT_MENU")
-          ).then((m) => {
-            Patcher.after(m, "default", patch);
-            DCM.forceUpdateMenus();
+          DCM.getDiscordMenu("useChannelMarkAsReadItem").then((menu) => {
+            Patcher.after(menu, "default", patch);
           });
 
-          DCM.getDiscordMenu(
-            (m) =>
-              m?.displayName == "ChannelListVoiceChannelContextMenu" &&
-              m.toString().includes("AnalyticsLocations.CONTEXT_MENU")
-          ).then((m) => {
-            Patcher.after(m, "default", patch);
-            DCM.forceUpdateMenus();
+          DCM.getDiscordMenu("useChannelHideNamesItem").then((menu) => {
+            Patcher.after(menu, "default", patch);
           });
 
           DCM.forceUpdateMenus();
