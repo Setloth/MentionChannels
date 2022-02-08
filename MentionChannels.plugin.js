@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author Echology
- * @version 4.1.0
+ * @version 4.1.1
  */
 
 const config = {
@@ -13,16 +13,16 @@ const config = {
         discord_id: "272875632088842240",
       },
     ],
-    version: "4.1.0",
+    version: "4.1.1",
     description:
       "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
   },
   changelog: [
     {
-      title: "Another Minor Fix",
+      title: "Tiny Content Update",
       items: [
-        "More updates that messed up the plugin",
-        "Fixed the context menus being patched"
+        "Added a line separator between mention button and Mark As Read button",
+        "Made the button not appear on category channels, as it doesn't make sense to mention them [cause it doesnt work]",
       ],
     },
   ],
@@ -101,6 +101,8 @@ module.exports = !global.ZeresPluginLibrary
         async patcher() {
           const patch = (_, [props], component) => {
             if (
+              !props.isCategory()
+              &&
               can(
                 SEND_MESSAGES,
                 getCurrentUser().id,
@@ -117,6 +119,7 @@ module.exports = !global.ZeresPluginLibrary
                     });
                   },
                 }),
+                DCM.buildMenuItem({type: "separator", id: "sep"}),
                 component,
               ];
             }
