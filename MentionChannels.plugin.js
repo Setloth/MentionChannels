@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author Echology
- * @version 4.1.1
+ * @version 4.2.0
  */
 
 const config = {
@@ -13,16 +13,16 @@ const config = {
         discord_id: "272875632088842240",
       },
     ],
-    version: "4.1.1",
+    version: "4.2.0",
     description:
       "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
   },
   changelog: [
     {
-      title: "Tiny Content Update",
+      title: "Fixed Voice Channel Button",
       items: [
-        "Added a line separator between mention button and Mark As Read button",
-        "Made the button not appear on category channels, as it doesn't make sense to mention them [cause it doesnt work]",
+        "Voice channels for some reason have a \"Mark as Read\" button now, which is annoying.",
+        "Made the button not appear twice on voice channels due to the new \"Mark as Read\" button.",
       ],
     },
   ],
@@ -129,9 +129,9 @@ module.exports = !global.ZeresPluginLibrary
             Patcher.after(menu, "default", patch);
           });
 
-          DCM.getDiscordMenu("useChannelHideNamesItem").then((menu) => {
-            Patcher.after(menu, "default", patch);
-          });
+          // DCM.getDiscordMenu("useChannelHideNamesItem").then((menu) => {
+          //   Patcher.after(menu, "default", patch);
+          // });
 
           DCM.forceUpdateMenus();
         }
