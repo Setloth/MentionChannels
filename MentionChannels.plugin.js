@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author Echology
- * @version 4.2.0
+ * @version 4.2.0+
  */
 
 const config = {
@@ -13,16 +13,15 @@ const config = {
         discord_id: "272875632088842240",
       },
     ],
-    version: "4.2.0",
+    version: "4.2.0+",
     description:
       "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
   },
   changelog: [
     {
-      title: "Fixed Voice Channel Button",
+      title: "Text Insertion Fix", 
       items: [
-        "Voice channels for some reason have a \"Mark as Read\" button now, which is annoying.",
-        "Made the button not appear twice on voice channels due to the new \"Mark as Read\" button.",
+        "Fixed the insertion of the channel mention",
       ],
     },
   ],
@@ -115,7 +114,7 @@ module.exports = !global.ZeresPluginLibrary
                   label: "Mention",
                   action: () => {
                     ComponentDispatch.dispatchToLastSubscribed("INSERT_TEXT", {
-                      content: "<#" + props.id + ">",
+                      plainText: "<#" + props.id + ">",
                     });
                   },
                 }),
@@ -128,10 +127,6 @@ module.exports = !global.ZeresPluginLibrary
           DCM.getDiscordMenu("useChannelMarkAsReadItem").then((menu) => {
             Patcher.after(menu, "default", patch);
           });
-
-          // DCM.getDiscordMenu("useChannelHideNamesItem").then((menu) => {
-          //   Patcher.after(menu, "default", patch);
-          // });
 
           DCM.forceUpdateMenus();
         }
