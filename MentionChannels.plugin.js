@@ -1,7 +1,7 @@
 /**
  * @name MentionChannels
  * @author Echology
- * @version 4.2.0+
+ * @version 4.2.0+1
  */
 
 const config = {
@@ -13,15 +13,15 @@ const config = {
         discord_id: "272875632088842240",
       },
     ],
-    version: "4.2.0+",
+    version: "4.2.0+1",
     description:
       "Adds a button that puts the mention for the channel clicked in your message, like Discord does for users.",
   },
   changelog: [
     {
-      title: "Text Insertion Fix", 
+      title: "Permission Handler Fix", 
       items: [
-        "Fixed the insertion of the channel mention",
+        "Fixed the checking of permissions which was preventing the plugin from working...",
       ],
     },
   ],
@@ -102,11 +102,11 @@ module.exports = !global.ZeresPluginLibrary
             if (
               !props.isCategory()
               &&
-              can(
-                SEND_MESSAGES,
-                getCurrentUser().id,
-                getChannel(getChannelId())
-              )
+              can({
+                permission: SEND_MESSAGES,
+                user: getCurrentUser().id,
+                context: getChannel(getChannelId())
+              })
             ) {
               return [
                 DCM.buildMenuItem({
