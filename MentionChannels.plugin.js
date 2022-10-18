@@ -2,7 +2,7 @@
  * @name MentionChannels
  * @author Echology
  * @description Allows you to mention channels like Discord does for users
- * @version 5.0.0
+ * @version 5.0.1
  * 
  */
 
@@ -68,7 +68,6 @@ module.exports = (meta) => ({
     },
     stop() {
         this.unpatch()
-        ContextMenu.unpatch("channel-context", this.unpatch)
         // Cleanup when disabled
     },
 })
