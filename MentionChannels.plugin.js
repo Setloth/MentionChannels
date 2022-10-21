@@ -2,7 +2,7 @@
  * @name MentionChannels
  * @author Echology
  * @description Allows you to mention channels like Discord does for users
- * @version 5.0.1
+ * @version 5.0.2
  * 
  */
 
@@ -27,7 +27,7 @@ const { can } = getByProps("can", "canEveryone")
 const { getCurrentUser } = getByProps("getCurrentUser")
 const { getChannel } = getByProps("getDMFromUserId", "getChannel")
 const { getChannelId } = getByProps("getLastSelectedChannelId", "getChannelId")
-const ComponentDispatch = getModule(m => m.dispatchToLastSubscribed && m.emitter?._events?.INSERT_TEXT, { searchExports: true })
+const ComponentDispatch = getModule(m => m.dispatch && m.emitter?._events?.INSERT_TEXT, { searchExports: true })
 
 module.exports = (meta) => ({
     start() {
@@ -47,8 +47,7 @@ module.exports = (meta) => ({
                     type: "text",
                     label: "Mention",
                     action: () => {
-                        console.log("HELLO")
-                        ComponentDispatch.dispatchToLastSubscribed(
+                        ComponentDispatch.dispatch(
                             "INSERT_TEXT",
                             {
                                 plainText: "<#" + channel.id + ">",
