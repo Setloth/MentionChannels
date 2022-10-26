@@ -2,7 +2,7 @@
  * @name MentionChannels
  * @author Echology
  * @description Allows you to mention channels like Discord does for users
- * @version 5.0.2
+ * @version 5.1.0
  * 
  */
 
@@ -31,7 +31,11 @@ const ComponentDispatch = getModule(m => m.dispatch && m.emitter?._events?.INSER
 
 module.exports = (meta) => ({
     start() {
-        this.unpatch = ContextMenu.patch("channel-context", this.patch)
+        this.patches = [
+            ContextMenu.patch("channel-context", this.patch),
+            ContextMenu.patch("thread-context", this.patch)
+        ]
+
     },
     patch(component, { channel }) {
         if (
@@ -51,7 +55,6 @@ module.exports = (meta) => ({
                             "INSERT_TEXT",
                             {
                                 plainText: "<#" + channel.id + ">",
-                                // rawText: "test"
                             }
                         )
                     },
@@ -66,7 +69,8 @@ module.exports = (meta) => ({
         }
     },
     stop() {
-        this.unpatch()
-        // Cleanup when disabled
+        for (var unpatch of this.patches) {
+            unpatch()
+        }
     },
 })
