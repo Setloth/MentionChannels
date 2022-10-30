@@ -2,14 +2,15 @@
  * @name MentionChannels
  * @author Echology
  * @description Allows you to mention channels like Discord does for users
- * @version 5.1.0
- * 
+ * @version 5.1.1
+ *
  */
 
 const { Webpack, ContextMenu } = BdApi
 const { getModule, Filters } = Webpack
 
-const getByProps = (...strs) => getModule(Filters.byProps(...strs), {searchExports: true})
+const getByProps = (...strs) =>
+    getModule(Filters.byProps(...strs), { searchExports: true })
 
 const Permissions = getModule(
         (module) => {
@@ -27,16 +28,25 @@ const { can } = getByProps("can", "canEveryone")
 const { getCurrentUser } = getByProps("getCurrentUser")
 const { getChannel } = getByProps("getDMFromUserId", "getChannel")
 const { getChannelId } = getByProps("getLastSelectedChannelId", "getChannelId")
-const ComponentDispatch = getModule(m => m.dispatch && m.emitter?._events?.INSERT_TEXT, { searchExports: true })
 
-module.exports = (meta) => ({
+module.exports = class MentionChannels {
+
+    constructor() {
+        this.ComponentDispatch = getModule(
+            (m) => m.dispatch && m.emitter?._events?.INSERT_TEXT,
+            { searchExports: true }
+        )
+        this.patches = []
+    }
+
     start() {
+        console.log(this, this.ComponentDispatch)
         this.patches = [
             ContextMenu.patch("channel-context", this.patch),
-            ContextMenu.patch("thread-context", this.patch)
+            ContextMenu.patch("thread-context", this.patch),
         ]
 
-    },
+    }
     patch(component, { channel }) {
         if (
             !channel.isCategory() &&
@@ -46,31 +56,32 @@ module.exports = (meta) => ({
                 context: getChannel(getChannelId()),
             })
         ) {
-            var items= [
+            var items = [
                 ContextMenu.buildItem({
                     type: "text",
                     label: "Mention",
                     action: () => {
-                        ComponentDispatch.dispatch(
-                            "INSERT_TEXT",
-                            {
-                                plainText: "<#" + channel.id + ">",
-                            }
+                        
+                        var ComponentDispatch = this?.ComponentDispatch || getModule(
+                            (m) => m.dispatch && m.emitter?._events?.INSERT_TEXT,
+                            { searchExports: true }
                         )
+                        ComponentDispatch.dispatchToLastSubscribed("INSERT_TEXT", {
+                            plainText: "<#" + channel.id + ">",
+                        })
                     },
                 }),
                 ContextMenu.buildItem({
                     type: "separator",
                     id: "sep",
-                })
+                }),
             ]
             component.props.children.splice(0, 0, items)
-
         }
-    },
+    }
     stop() {
         for (var unpatch of this.patches) {
             unpatch()
         }
-    },
-})
+    }
+}
