@@ -3,7 +3,6 @@
  * @author Echology
  * @description Allows you to mention channels like Discord does for users
  * @version 5.1.1
- *
  */
 
 const { Webpack, ContextMenu } = BdApi
